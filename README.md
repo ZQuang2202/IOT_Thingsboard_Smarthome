@@ -95,12 +95,16 @@ After running the virtual data script, the simulated weather data will be displa
 
 ## Wind Turbine control 
 Install ThingsBoard Edge as per the above instructions.
+
 Import the Dashboard and Rule Chain files to ThingsBoard Cloud and assign them to Edge Instances. Set the Rule Chain file name to "rule chain root".
+
 Create 2 Devices:
-WindDirection: Virtual wind direction sensor providing wind direction in the range of 0-360 degrees (code in WindDirectionEmulator.js).
-Wind turbine: Virtual wind turbine control device (code in RotatingSystemEmulator.js).
+-  WindDirection: Virtual wind direction sensor providing wind direction in the range of 0-360 degrees (code in WindDirectionEmulator.js).
+-  Wind turbine: Virtual wind turbine control device (code in RotatingSystemEmulator.js).
 Download the NodeJs version compatible with your computer from Node.js Download.
+
 Open Command Prompt and navigate to the directory where the 2 JavaScript files are stored.
+
 Run the following commands:
 ```bash
 cd $path_to_downloaded_above_two_file

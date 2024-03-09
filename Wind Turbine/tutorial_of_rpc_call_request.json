@@ -1,0 +1,231 @@
+{
+  "ruleChain": {
+    "additionalInfo": {
+      "description": ""
+    },
+    "name": "Tutorial of RPC Call Request",
+    "type": "EDGE",
+    "firstRuleNodeId": null,
+    "root": false,
+    "debugMode": false,
+    "configuration": null,
+    "externalId": null
+  },
+  "metadata": {
+    "firstNodeIndex": 0,
+    "nodes": [
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 289,
+          "layoutY": 154
+        },
+        "type": "org.thingsboard.rule.engine.filter.TbMsgTypeSwitchNode",
+        "name": "Message Type Switch",
+        "debugMode": false,
+        "configuration": {
+          "version": 0
+        },
+        "externalId": null
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 647,
+          "layoutY": 154
+        },
+        "type": "org.thingsboard.rule.engine.telemetry.TbMsgTimeseriesNode",
+        "name": "Save Time Series",
+        "debugMode": false,
+        "configuration": {
+          "defaultTTL": 0,
+          "skipLatestPersistence": false,
+          "useServerTs": false
+        },
+        "externalId": null
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 896,
+          "layoutY": 46
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbChangeOriginatorNode",
+        "name": "Create New Telemetry",
+        "debugMode": false,
+        "configuration": {
+          "originatorSource": "RELATED",
+          "entityType": null,
+          "entityNamePattern": null,
+          "relationsQuery": {
+            "fetchLastLevelOnly": false,
+            "direction": "TO",
+            "maxLevel": 1,
+            "filters": [
+              {
+                "relationType": "Contains",
+                "entityTypes": [
+                  "ASSET"
+                ]
+              }
+            ]
+          }
+        },
+        "externalId": null
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1174,
+          "layoutY": 43
+        },
+        "type": "org.thingsboard.rule.engine.telemetry.TbMsgTimeseriesNode",
+        "name": "Save Time Series",
+        "debugMode": false,
+        "configuration": {
+          "defaultTTL": 0,
+          "skipLatestPersistence": false,
+          "useServerTs": false
+        },
+        "externalId": null
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 895,
+          "layoutY": 271
+        },
+        "type": "org.thingsboard.rule.engine.metadata.TbGetRelatedAttributeNode",
+        "name": "Fetch Wind Sensor Telemetry",
+        "debugMode": false,
+        "configuration": {
+          "relationsQuery": {
+            "fetchLastLevelOnly": false,
+            "direction": "FROM",
+            "maxLevel": 1,
+            "filters": [
+              {
+                "relationType": "Uses",
+                "entityTypes": [
+                  "DEVICE"
+                ]
+              }
+            ]
+          },
+          "telemetry": true,
+          "attrMapping": {
+            "windDirection": "windDirection"
+          }
+        },
+        "externalId": null
+      },
+      {
+        "additionalInfo": {
+          "description": null,
+          "layoutX": 1158,
+          "layoutY": 265
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "New RPC Message",
+        "debugMode": false,
+        "configuration": {
+          "scriptLang": "JS",
+          "jsScript": "var newMsg = {};\nvar value = Math.abs(msg.turbineDirection - metadata.windDirection);\nif ((value < 180 && msg.turbineDirection < metadata.windDirection)||\n    (value > 180 && msg.turbineDirection > metadata.windDirection)) {\n    newMsg.method = 'spinLeft';\n}\n\nif ((value < 180 && msg.turbineDirection > metadata.windDirection)||\n    (value > 180 && msg.turbineDirection < metadata.windDirection)) {\n    newMsg.method = 'spinRight';\n}\nif(newMsg.method == 'spinLeft' || 'spinRight'){\n     msgType = 'RPC message';\n}\n\nnewMsg.params = Math.round(value * 100) / 100;\nreturn {msg: newMsg, metadata: metadata, msgType: msgType};",
+          "tbelScript": null
+        },
+        "externalId": null
+      },
+      {
+        "additionalInfo": {
+          "description": null,
+          "layoutX": 1309,
+          "layoutY": 424
+        },
+        "type": "org.thingsboard.rule.engine.filter.TbJsFilterNode",
+        "name": "Check RPC Message",
+        "debugMode": false,
+        "configuration": {
+          "scriptLang": "JS",
+          "jsScript": "return msgType == 'RPC message';\n",
+          "tbelScript": null
+        },
+        "externalId": null
+      },
+      {
+        "additionalInfo": {
+          "layoutX": 1629,
+          "layoutY": 380
+        },
+        "type": "org.thingsboard.rule.engine.rpc.TbSendRPCRequestNode",
+        "name": "Rotating System",
+        "debugMode": false,
+        "configuration": {
+          "timeoutInSeconds": 60
+        },
+        "externalId": null
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1500,
+          "layoutY": 54
+        },
+        "type": "org.thingsboard.rule.engine.edge.TbMsgPushToCloudNode",
+        "name": "Push to Cloud",
+        "debugMode": false,
+        "configuration": {
+          "scope": "SERVER_SCOPE"
+        },
+        "externalId": null
+      }
+    ],
+    "connections": [
+      {
+        "fromIndex": 0,
+        "toIndex": 1,
+        "type": "Post telemetry"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 2,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 4,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 8,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 3,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 3,
+        "toIndex": 8,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 4,
+        "toIndex": 5,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 5,
+        "toIndex": 6,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 6,
+        "toIndex": 7,
+        "type": "True"
+      }
+    ],
+    "ruleChainConnections": null
+  }
+}

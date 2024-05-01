@@ -56,7 +56,7 @@ password_file /etc/mosquitto/password.txt
 ## IOT thingsboard gateway
 Configure parameters for Mosquitto broker, topic, payload in mqtt.json and tb-gateway.yaml. Place these two files in /etc/thingsboard-gateway/conf/
 
-## Cấu hình Thingsboard Edge
+## Thingsboard Edge Configurations
 Follow the installation steps as per the guide at Thingsboard Edge Installation. Open the docker-compose.yml file and configure:
 ```
     ports:
